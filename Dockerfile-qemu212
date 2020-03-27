@@ -1,0 +1,43 @@
+FROM ubuntu:18.04
+
+RUN ln -fs /usr/share/zoneinfo/America/Phoenix /etc/localtime
+RUN apt-get update && \
+    apt-get install -y \
+        build-essential git libfdt-dev libpixman-1-dev libssl-dev vim bc socat \
+        libsdl1.2-dev libspice-server-dev autoconf libtool xtightvncviewer \
+        tightvncserver x11vnc uuid-runtime uuid \
+        uml-utilities bridge-utils python-dev liblzma-dev libc6-dev libegl1-mesa-dev \
+        libepoxy-dev libdrm-dev libgbm-dev spice-client-gtk libgtk2.0-dev \
+        libusb-1.0.0-dev bison flex openssh-server net-tools \
+        libfdt-dev libspice-server-dev libsdl1.2-dev
+RUN dpkg-reconfigure -f noninteractive tzdata
+
+WORKDIR /root
+RUN git clone https://github.com/intel/igvtg-qemu
+
+WORKDIR /root/igvtg-qemu
+RUN git checkout stable-2.12.0
+RUN git submodule update --init roms/seabios
+
+RUN ./configure --prefix=/usr \
+--enable-kvm \
+--disable-xen \
+--enable-libusb \
+--enable-debug-info \
+--enable-debug \
+--enable-sdl \
+--enable-vhost-net \
+--enable-spice \
+--disable-debug-tcg \
+--enable-opengl \
+--target-list=x86_64-softmmu
+RUN make -j`nproc`
+
+WORKDIR /root/igvtg-qemu/roms/seabios
+RUN make -j`nproc`
+
+WORKDIR /root/igvtg-qemu
+RUN make install
+RUN cp roms/seabios/out/bios.bin /usr/bin/bios.bin
+
+WORKDIR /root
