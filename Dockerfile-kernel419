@@ -1,0 +1,30 @@
+FROM ubuntu:18.04
+
+ARG URL https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+ARG BRANCH v4.19.65
+ARG WDIR idv-2.1
+ARG PATCHES idv2.1_er5_patchset
+ARG CDIR /root
+
+RUN ln -fs /usr/share/zoneinfo/America/Phoenix /etc/localtime
+RUN apt-get update && \
+    apt-get install -y \
+         liblz4-tool kernel-package libelf-dev build-essential git \
+libfdt-dev libpixman-1-dev libssl-dev vim bc socat libsdl1.2-dev libspice-server-dev \
+autoconf libtool xtightvncviewer tightvncserver x11vnc uuid-runtime uuid uml-utilities \
+bridge-utils python-dev liblzma-dev libc6-dev libegl1-mesa-dev libepoxy-dev libdrm-dev \
+libgbm-dev spice-client-gtk libgtk2.0-dev libusb-1.0.0-dev bison flex openssh-server \
+net-tools   
+RUN dpkg-reconfigure -f noninteractive tzdata
+
+WORKDIR /root
+RUN git clone --depth 1 $URL --branch $BRANCH --single-branch $WDIR
+
+#Copy IDV patches from local directory
+COPY $PATCHES.tar.gz $PATCHES.tar.gz
+
+#4. Apply the patches
+RUN tar xzvf $CDIR/$PATCHES.tar.gz 
+WORKDIR $WDIR 
+RUN git apply $CDIR/$PATCHES/* &>/dev/null 
+
