@@ -1,13 +1,16 @@
+#docker build -t qemu420 -f Dockerfile-qemu420 .
+#docker run --rm -it -v $(pwd):/tmp/mount qemu420 cp /root/qemu420.tar.gz /tmp/mount
+
 FROM ubuntu:18.04
 
 RUN ln -fs /usr/share/zoneinfo/America/Phoenix /etc/localtime
 RUN apt-get update && \
     apt-get install -y \
          git libfdt-dev libpixman-1-dev libssl-dev vim \
-socat libsdl2-dev libspice-server-dev autoconf libtool xtightvncviewer \
-tightvncserver x11vnc uuid-runtime uuid uml-utilities bridge-utils \
-python-dev liblzma-dev libc6-dev libegl1-mesa-dev libepoxy-dev libdrm-dev \
-libgbm-dev libaio-dev libusb-1.0.0-dev libgtk-3-dev bison  
+         socat libsdl2-dev libspice-server-dev autoconf libtool xtightvncviewer \
+         tightvncserver x11vnc uuid-runtime uuid uml-utilities bridge-utils \
+         python-dev liblzma-dev libc6-dev libegl1-mesa-dev libepoxy-dev libdrm-dev \
+         libgbm-dev libaio-dev libusb-1.0.0-dev libgtk-3-dev bison  
 RUN dpkg-reconfigure -f noninteractive tzdata
 
 
@@ -18,7 +21,8 @@ WORKDIR /root/qemu
 RUN git checkout v4.2.0
 RUN git submodule update --init roms/seabios
 
-RUN ./configure --prefix=/usr \
+RUN mkdir -p /tmp/qemu
+RUN ./configure --prefix=/tmp/qemu \
 --enable-kvm \
 --disable-xen \
 --enable-libusb \
@@ -33,16 +37,20 @@ RUN ./configure --prefix=/usr \
 --target-list=x86_64-softmmu \
 --audio-drv-list=pa 
 
-RUN make -j`nproc`
+RUN make -j $(nproc)
 
 WORKDIR /root/qemu/roms/seabios
-RUN make -j`nproc`
+RUN make -j $(nproc)
 
 WORKDIR /root/qemu
 RUN make install
 RUN cp roms/seabios/out/bios.bin /usr/bin/bios.bin
 
+WORKDIR /tmp
+RUN tar -cvzf qemu420.tar.gz qemu 
+
 WORKDIR /root
+RUN cp /tmp/qemu420.tar.gz .
 
 
 
