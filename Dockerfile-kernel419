@@ -5,7 +5,7 @@ FROM ubuntu:18.04
 ARG URL=https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
 ARG BRANCH=v4.19.65
 ARG WDIR=idv-2.1
-ARG PATCHES=idv2.1_er5_patchset
+ARG PATCHES=idv2.1_er6_patchset
 ARG CDIR=/root
 
 RUN ln -fs /usr/share/zoneinfo/America/Phoenix /etc/localtime
@@ -35,7 +35,7 @@ COPY .config .config
 RUN egrep 'CONFIG_DRM_I915_GVT|CONFIG_VFIO_MDEV' .config
 
 #6 Compile kernel source
-RUN export CONCURRENCY_LEVEL=$(nproc) && fakeroot make-kpkg --initrd --append-to-version=-intelgvt --revision 2.1.0 --overlay-dir=$CDIR/ubuntu-package kernel_image kernel_headers
+RUN export CONCURRENCY_LEVEL=$(nproc) && fakeroot make-kpkg --initrd --append-to-version=-idv2.1er6 --revision 2.1.0 --overlay-dir=$CDIR/ubuntu-package kernel_image kernel_headers
 
 WORKDIR /root
 
