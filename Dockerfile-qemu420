@@ -39,12 +39,24 @@ RUN ./configure --prefix=/tmp/qemu \
 
 RUN make -j $(nproc)
 
+#Build bios.bin
 WORKDIR /root/qemu/roms/seabios
 RUN make -j $(nproc)
 
+#Build qemu
 WORKDIR /root/qemu
 RUN make install
-RUN cp roms/seabios/out/bios.bin /usr/bin/bios.bin
+RUN cp roms/seabios/out/bios.bin /tmp/qemu/bin/bios.bin
+
+#Build OVMF.fd
+RUN apt-get update && \
+    apt-get install -y \
+         uuid-dev nasm acpidump iasl bc
+
+RUN git submodule update --init --recursive roms/edk2
+WORKDIR /root/qemu/roms/edk2
+RUN /bin/bash -c "source ./edksetup.sh; make -C BaseTools/; build -b DEBUG -t GCC5 -a X64 -p OvmfPkg/OvmfPkgX64.dsc -D NETWORK_IP4_ENABLE -D NETWORK_ENABLE  -D SECURE_BOOT_ENABLE -DTPM2_ENABLE=TRUE"
+RUN cp Build/OvmfX64/DEBUG_GCC5/FV/OVMF.fd /tmp/qemu/bin/
 
 WORKDIR /tmp
 RUN tar -cvzf qemu420.tar.gz qemu 
