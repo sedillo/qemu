@@ -1,0 +1,42 @@
+#docker build -t kernel419 -f Dockerfile-kernel419 .
+#docker run --rm -it -v $(pwd):/tmp/mount kernel419 /bin/bash -c 'cp *.deb /tmp/mount/'
+FROM ubuntu:18.04
+
+ARG URL=https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+ARG BRANCH=v4.4
+ARG WDIR=kernelbuild44
+#ARG PATCHES=idv2.1_er6_patchset
+ARG CDIR=/root
+
+RUN ln -fs /usr/share/zoneinfo/America/Phoenix /etc/localtime
+RUN apt-get update && \
+    apt-get install -y \
+         liblz4-tool kernel-package libelf-dev build-essential git \
+libfdt-dev libpixman-1-dev libssl-dev vim bc socat libsdl1.2-dev libspice-server-dev \
+autoconf libtool xtightvncviewer tightvncserver x11vnc uuid-runtime uuid uml-utilities \
+bridge-utils python-dev liblzma-dev libc6-dev libegl1-mesa-dev libepoxy-dev libdrm-dev \
+libgbm-dev spice-client-gtk libgtk2.0-dev libusb-1.0.0-dev bison flex openssh-server \
+net-tools   
+RUN dpkg-reconfigure -f noninteractive tzdata
+
+WORKDIR /root
+RUN git clone --depth 1 $URL --branch $BRANCH --single-branch $WDIR
+
+#Copy IDV patches from local directory
+
+#4. Apply the patches
+#RUN tar xzvf $CDIR/$PATCHES.tar.gz 
+WORKDIR $WDIR 
+COPY kernel44.patch kernel44.patch
+RUN git apply kernel44.patch 
+
+#5 Configure kernel
+COPY .config .config
+RUN egrep 'CONFIG_DRM_I915_GVT|CONFIG_VFIO_MDEV' .config
+
+#6 Compile kernel source
+RUN export CONCURRENCY_LEVEL=$(nproc) && fakeroot make-kpkg --initrd --append-to-version=-4.4 --revision 4.4 --overlay-dir=$CDIR/ubuntu-package kernel_image kernel_headers
+
+WORKDIR /root
+
+
