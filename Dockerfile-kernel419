@@ -28,15 +28,15 @@ COPY $PATCHES.tar.gz $PATCHES.tar.gz
 #4. Apply the patches
 RUN tar xzvf $CDIR/$PATCHES.tar.gz 
 WORKDIR $WDIR 
-RUN git apply $CDIR/$PATCHES/* &>/dev/null 
+RUN git apply $CDIR/$PATCHES/*
 
 #5 Configure kernel
 COPY .config .config
 RUN egrep 'CONFIG_DRM_I915_GVT|CONFIG_VFIO_MDEV' .config
+RUN yes '' | make oldconfig
 
 #6 Compile kernel source
-RUN export CONCURRENCY_LEVEL=$(nproc) && fakeroot make-kpkg --initrd --append-to-version=-idv2.1er6 --revision 2.1.0 --overlay-dir=$CDIR/ubuntu-package kernel_image kernel_headers
-
+RUN export CONCURRENCY_LEVEL=$(nproc) && fakeroot make-kpkg --initrd --append-to-version=-custom --revision 2.1.0 --overlay-dir=$CDIR/ubuntu-package kernel_image kernel_headers
 WORKDIR /root
 
 
