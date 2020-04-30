@@ -51,6 +51,10 @@ reboot
 ```
 
 ## Verify Installation
+On reboot you will see a GRUB menu
+* Pick Advanced Installation
+* Pick the 4.19 kernel
+
 Verify that these folders/files exist
 * /sys/bus/pci/devices/0000:00:02.0/mdev_supported_types
 * ls /sys/class/drm/card0/gvt*
