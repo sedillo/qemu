@@ -51,7 +51,7 @@ RUN cp roms/seabios/out/bios.bin /tmp/qemu/bin/bios.bin
 #Build OVMF.fd
 RUN apt-get update && \
     apt-get install -y \
-         uuid-dev nasm acpidump iasl bc
+         uuid-dev nasm acpidump iasl bc gnutls-bin
 
 RUN git submodule update --init --recursive roms/edk2
 WORKDIR /root/qemu/roms/edk2
