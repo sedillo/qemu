@@ -25,9 +25,10 @@ sudo docker run --rm -it -v $(pwd):/tmp/mount qemu420 cp /root/qemu420.tar.gz /t
 tar xvf qemu420.tar.gz
 cd qemu
 sudo cp -r * /usr/
+sudo apt install -y libaio-dev libsdl2-dev libspice-server-dev 
 ```
 
-## Update OS
+## Update Ubuntu OS
 
 First you must move install the idv patch files to ~/qemu folder
 
