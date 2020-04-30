@@ -1,4 +1,4 @@
-# Install GVTg on Ubunut
+# Install GVTg on Ubuntu
   
 ## Install Ubuntu
 Install Ubuntu 18.04.4 (Fresh Install Recommended)
