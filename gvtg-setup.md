@@ -23,7 +23,7 @@ cd ~/qemu
 sudo docker build -t qemu420 -f Dockerfile-qemu420 .
 sudo docker run --rm -it -v $(pwd):/tmp/mount qemu420 cp /root/qemu420.tar.gz /tmp/mount
 tar xvf qemu420.tar.gz
-cd qemu420
+cd qemu
 sudo cp -r * /usr/
 ```
 
@@ -35,9 +35,12 @@ First you must move install the idv patch files to ~/qemu folder
 cd ~/qemu 
 sudo docker build -t kernel419 -f Dockerfile-kernel419 .
 sudo docker run --rm -it -v $(pwd):/tmp/mount kernel419 /bin/bash -c 'cp *.deb /tmp/mount/'
+sudo dpkg -i *.deb
 
 sudo su
 sed -i "s/GRUB_CMDLINE_LINUX=\"/GRUB_CMDLINE_LINUX=\"i915.enable_gvt=1 intel_iommu=on /g" /etc/default/grub
+sed -i "s/GRUB_TIMEOUT\=.*/GRUB_TIMEOUT\=-1/g" /etc/default/grub
+sed -i "s/GRUB_TIMEOUT_STYLE\=.*/GRUB_TIMEOUT_STYLE\=menu/g" /etc/default/grub
 update-grub
 
 echo -e "\nkvmgt\nvfio-iommu-type1\nvfio-mdev\n" >> /etc/initramfs-tools/modules
@@ -49,4 +52,4 @@ reboot
 ## Verify Installation
 Verify that these folders/files exist
 * /sys/bus/pci/devices/0000:00:02.0/mdev_supported_types
-* /sys/class/drm/card0$ ls /sys/class/drm/card0/gvt*
+* ls /sys/class/drm/card0/gvt*

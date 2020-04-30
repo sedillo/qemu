@@ -9,14 +9,15 @@ ARG PATCHES=idv2.1_er6_patchset
 ARG CDIR=/root
 
 RUN ln -fs /usr/share/zoneinfo/America/Phoenix /etc/localtime
+RUN apt-get update && apt-get install -y gnupg && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 5FCBF54A 
 RUN apt-get update && \
     apt-get install -y \
          liblz4-tool kernel-package libelf-dev build-essential git \
 libfdt-dev libpixman-1-dev libssl-dev vim bc socat libsdl1.2-dev libspice-server-dev \
 autoconf libtool xtightvncviewer tightvncserver x11vnc uuid-runtime uuid uml-utilities \
 bridge-utils python-dev liblzma-dev libc6-dev libegl1-mesa-dev libepoxy-dev libdrm-dev \
-libgbm-dev spice-client-gtk libgtk2.0-dev libusb-1.0.0-dev bison flex openssh-server \
-net-tools   
+libgbm-dev spice-client-gtk libgtk2.0-dev libusb-1.0.0-dev bison openssh-server \
+net-tools flex
 RUN dpkg-reconfigure -f noninteractive tzdata
 
 WORKDIR /root
