@@ -9,7 +9,6 @@ ARG PATCHES=idv2.1_er6_patchset
 ARG CDIR=/root
 
 RUN ln -fs /usr/share/zoneinfo/America/Phoenix /etc/localtime
-RUN apt-get update && apt-get install -y gnupg && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 5FCBF54A 
 RUN apt-get update && \
     apt-get install -y \
          liblz4-tool kernel-package libelf-dev build-essential git \
